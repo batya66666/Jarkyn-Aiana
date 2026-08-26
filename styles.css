@@ -109,6 +109,12 @@ img {
   border-color: rgba(181, 138, 73, 0.72);
 }
 
+#nl-badge,
+#nl-card,
+.nl-badge {
+  display: none !important;
+}
+
 .chapter {
   position: relative;
   min-height: 100svh;
