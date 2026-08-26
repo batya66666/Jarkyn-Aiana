@@ -8,6 +8,8 @@ const rsvpStatus = document.querySelector(".form-status");
 const rsvpAdmin = document.querySelector(".rsvp-admin");
 const rsvpCount = document.getElementById("rsvp-count");
 const downloadRsvp = document.getElementById("download-rsvp");
+const bgMusic = document.getElementById("bg-music");
+const musicButton = document.querySelector(".music-button");
 const RSVP_STORAGE_KEY = "jarkyn-rsvp-responses";
 
 const observer = new IntersectionObserver(
@@ -66,6 +68,36 @@ function updateProgress() {
   const maxScroll = page.scrollHeight - page.clientHeight;
   const percent = maxScroll <= 0 ? 0 : (page.scrollTop / maxScroll) * 100;
   progressBar.style.width = `${percent}%`;
+}
+
+function updateMusicButton() {
+  if (!bgMusic || !musicButton) return;
+
+  const isPlaying = !bgMusic.paused;
+  musicButton.classList.toggle("is-playing", isPlaying);
+  musicButton.setAttribute("aria-pressed", String(isPlaying));
+  musicButton.setAttribute("aria-label", isPlaying ? "Выключить музыку" : "Включить музыку");
+}
+
+async function playMusic() {
+  if (!bgMusic) return false;
+
+  try {
+    bgMusic.volume = 0.45;
+    await bgMusic.play();
+    updateMusicButton();
+    return true;
+  } catch {
+    updateMusicButton();
+    return false;
+  }
+}
+
+function enableMusicOnce() {
+  playMusic();
+  window.removeEventListener("pointerdown", enableMusicOnce);
+  window.removeEventListener("keydown", enableMusicOnce);
+  window.removeEventListener("touchstart", enableMusicOnce);
 }
 
 function getStoredResponses() {
@@ -154,9 +186,28 @@ if (rsvpAdmin && new URLSearchParams(window.location.search).get("admin") === "1
 
 downloadRsvp?.addEventListener("click", downloadResponses);
 
+musicButton?.addEventListener("click", async () => {
+  if (!bgMusic) return;
+
+  if (bgMusic.paused) {
+    await playMusic();
+  } else {
+    bgMusic.pause();
+    updateMusicButton();
+  }
+});
+
+bgMusic?.addEventListener("play", updateMusicButton);
+bgMusic?.addEventListener("pause", updateMusicButton);
+
 window.addEventListener("scroll", updateProgress, { passive: true });
 window.addEventListener("resize", updateProgress);
+window.addEventListener("pointerdown", enableMusicOnce, { once: true });
+window.addEventListener("keydown", enableMusicOnce, { once: true });
+window.addEventListener("touchstart", enableMusicOnce, { once: true, passive: true });
 
 updateCountdown();
 updateProgress();
+updateMusicButton();
+playMusic();
 setInterval(updateCountdown, 60000);
