@@ -12,6 +12,18 @@ const bgMusic = document.getElementById("bg-music");
 const musicButton = document.querySelector(".music-button");
 const RSVP_STORAGE_KEY = "jarkyn-rsvp-responses";
 
+function removeNetlifyBadge() {
+  document.querySelectorAll("#nl-badge, #nl-card, .nl-badge").forEach((item) => item.remove());
+}
+
+removeNetlifyBadge();
+
+const netlifyBadgeObserver = new MutationObserver(removeNetlifyBadge);
+netlifyBadgeObserver.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
+});
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
